@@ -1,0 +1,16 @@
+quiet: False
+disable-version-string: True
+mockname: "{{.InterfaceName}}"
+filename: "{{.MockName}}.go"
+outpkg: mocks
+dir: mocks
+packages:
+  github.com/Dionizio8/go-temppc-dist/internal/entity:
+    outpkg: mocks
+    interfaces:
+      AddressRepositoryInterface:
+        config:
+          mockname: MockAddressRepository
+      TemperatureRepositoryInterface:
+        config:
+          mockname: MockTemperatureRepository

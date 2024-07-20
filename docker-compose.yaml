@@ -1,0 +1,51 @@
+services:
+  zipkin:
+    container_name: zipkin
+    image: openzipkin/zipkin:latest
+    restart: always
+    ports:
+      - 9411:9411
+
+  otel-collector:
+    container_name: otel-collector
+    image: otel/opentelemetry-collector:latest
+    restart: always
+    volumes:
+      - ./.docker/otel-collector-config.yaml:/etc/otel-collector-config.yaml
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    ports:
+      - "4317:4317"   # OTLP gRPC receiver
+      - "4318:4319"   # OTLP HTTP receiver
+      - "55679:55679" # zpages extension
+
+  service-a-validator:
+    container_name: service-a
+    build:
+      context: .
+      args:
+        APP_NAME: validator
+    environment:
+      - WEB_SERVER_PORT=:8080
+      - OTEL_SERVICE_NAME=app-a-validator
+      - OTEL_COLLECTOR_URL=otel-collector:4317
+    ports:
+      - 8080:8080
+    depends_on:
+      - zipkin
+      - otel-collector
+
+  service-b-temppc:
+    container_name: service-b
+    build:
+      context: .
+      args:
+        APP_NAME: temppc
+    environment:
+      - WEB_SERVER_PORT=:8090
+      - OTEL_SERVICE_NAME=app-b-temppc
+      - OTEL_COLLECTOR_URL=otel-collector:4317
+    ports:
+      - 8090:8090
+    depends_on:
+      - zipkin
+      - otel-collector
