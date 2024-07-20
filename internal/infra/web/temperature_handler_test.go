@@ -1,7 +1,6 @@
 package web
 
 import (
-	"context"
 	"errors"
 	"net/http"
 	"net/http/httptest"
@@ -11,15 +10,17 @@ import (
 	"github.com/Dionizio8/go-temppc-dist/mocks"
 	"github.com/go-chi/chi"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
+	"go.opentelemetry.io/otel/trace/noop"
 )
 
 func TestWebTemperatureHandler_GetTemperature_ErrorddressNotFound(t *testing.T) {
-	ctx := context.Background()
+	tracer := noop.NewTracerProvider().Tracer("microservice-tracer")
 	addressRepository := mocks.NewMockAddressRepository(t)
 	temperatureRepository := mocks.NewMockTemperatureRepository(t)
-	webTemperatureHandler := NewWebTemperatureHandler(addressRepository, temperatureRepository, nil)
+	webTemperatureHandler := NewWebTemperatureHandler(addressRepository, temperatureRepository, tracer)
 
-	addressRepository.On("GetAddress", ctx, "11111111").Return(entity.Address{}, errors.New(entity.ErrAddressNotFoundMsg))
+	addressRepository.On("GetAddress", mock.Anything, "11111111").Return(entity.Address{}, errors.New(entity.ErrAddressNotFoundMsg))
 
 	r := chi.NewRouter()
 	r.Get("/temperature/{zipCode}", webTemperatureHandler.GetTemperature)
@@ -34,9 +35,10 @@ func TestWebTemperatureHandler_GetTemperature_ErrorddressNotFound(t *testing.T) 
 }
 
 func TestWebTemperatureHandler_GetTemperature_ErrorInvalidZipCode(t *testing.T) {
+	tracer := noop.NewTracerProvider().Tracer("microservice-tracer")
 	addressRepository := mocks.NewMockAddressRepository(t)
 	temperatureRepository := mocks.NewMockTemperatureRepository(t)
-	webTemperatureHandler := NewWebTemperatureHandler(addressRepository, temperatureRepository, nil)
+	webTemperatureHandler := NewWebTemperatureHandler(addressRepository, temperatureRepository, tracer)
 
 	r := chi.NewRouter()
 	r.Get("/temperature/{zipCode}", webTemperatureHandler.GetTemperature)
@@ -51,13 +53,13 @@ func TestWebTemperatureHandler_GetTemperature_ErrorInvalidZipCode(t *testing.T) 
 }
 
 func TestWebTemperatureHandler_GetTemperature_ErrorInternalServer(t *testing.T) {
-	ctx := context.Background()
+	tracer := noop.NewTracerProvider().Tracer("microservice-tracer")
 	addressRepository := mocks.NewMockAddressRepository(t)
 	temperatureRepository := mocks.NewMockTemperatureRepository(t)
-	webTemperatureHandler := NewWebTemperatureHandler(addressRepository, temperatureRepository, nil)
+	webTemperatureHandler := NewWebTemperatureHandler(addressRepository, temperatureRepository, tracer)
 
-	addressRepository.On("GetAddress", ctx, "11111111").Return(entity.Address{City: "Limeira", State: "SP"}, nil).Once()
-	temperatureRepository.On("GetTemperature", ctx, "Limeira").Return(entity.Temperature{}, errors.New("Internal Server Error")).Once()
+	addressRepository.On("GetAddress", mock.Anything, "11111111").Return(entity.Address{City: "Limeira", State: "SP"}, nil).Once()
+	temperatureRepository.On("GetTemperature", mock.Anything, "Limeira").Return(entity.Temperature{}, errors.New("Internal Server Error")).Once()
 
 	r := chi.NewRouter()
 	r.Get("/temperature/{zipCode}", webTemperatureHandler.GetTemperature)

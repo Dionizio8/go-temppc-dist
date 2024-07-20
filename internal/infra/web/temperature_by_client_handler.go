@@ -6,7 +6,6 @@ import (
 
 	"github.com/Dionizio8/go-temppc-dist/internal/entity"
 	"github.com/Dionizio8/go-temppc-dist/internal/usecase"
-	"github.com/go-chi/chi"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/trace"
@@ -32,14 +31,15 @@ func (t *WebTemperatureByClientHandler) GetTemperature(w http.ResponseWriter, r 
 	ctx, span := t.OtelTracer.Start(ctx, "GetTemperatureClient")
 	defer span.End()
 
-	zipCode := chi.URLParam(r, "zipCode")
-	if zipCode == "" {
-		w.WriteHeader(http.StatusBadRequest)
+	var dto usecase.TemperatureInputDTO
+	err := json.NewDecoder(r.Body).Decode(&dto)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	getTemperatureByClientUserCase := usecase.NewGetTemperatureByClientUseCase(t.TemppcRepository)
-	temperature, err := getTemperatureByClientUserCase.Execute(ctx, zipCode)
+	temperature, err := getTemperatureByClientUserCase.Execute(ctx, dto)
 	if err != nil {
 		msgErr := err.Error()
 		if msgErr == entity.ErrAddressNotFoundMsg {

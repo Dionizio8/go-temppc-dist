@@ -7,6 +7,10 @@ import (
 	"github.com/Dionizio8/go-temppc-dist/internal/entity"
 )
 
+type TemperatureInputDTO struct {
+	Cep string `json:"cep"`
+}
+
 type GetTemperatureByClientUseCase struct {
 	TemppcRepository entity.TemppcRepositoryInterface
 }
@@ -17,11 +21,11 @@ func NewGetTemperatureByClientUseCase(temppcRepository entity.TemppcRepositoryIn
 	}
 }
 
-func (uc *GetTemperatureByClientUseCase) Execute(ctx context.Context, zipCode string) (TemperatureOutputDTO, error) {
-	if !entity.ValidateZipCode(zipCode) {
+func (uc *GetTemperatureByClientUseCase) Execute(ctx context.Context, input TemperatureInputDTO) (TemperatureOutputDTO, error) {
+	if !entity.ValidateZipCode(input.Cep) {
 		return TemperatureOutputDTO{}, errors.New(entity.ErrInvalidZipCodeMsg)
 	}
-	temperature, err := uc.TemppcRepository.GetTemperature(ctx, zipCode)
+	temperature, err := uc.TemppcRepository.GetTemperature(ctx, input.Cep)
 	if err != nil {
 		return TemperatureOutputDTO{}, err
 	}

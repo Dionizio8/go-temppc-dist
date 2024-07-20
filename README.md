@@ -42,30 +42,19 @@ Desenvolver um sistema em Go que receba um CEP, identifica a cidade e retorna o 
 Após a implementação dos serviços, adicione a implementação do OTEL + Zipkin:
 - Implementar tracing distribuído entre **Serviço A** - **Serviço B**
 - Utilizar span para medir o tempo de resposta do serviço de busca de CEP e busca de temperatura
-
 ---
 
 # Arquivos de Testes (_.http_)
 - [Request API Local](./api/api.http)
 
 ---
-# Executar localmente
-Será necessário realizar o start das duas aplicações (A & B) para realizar o testes localmente.
 
-### Serviço A [_validator_]
-- port:8080
+# Executando Docker Local
+Será necessário inicializar com o comando:
 ```bash
-cd ./cmd/validator/
+docker compose up -d --build
 ```
-```bash
-go run main.go
-```
+E pode realizar os testes com arquivo [api.http](./api/api.http)
 
-### Serviço B [_temppc_]
-- port:8090
-```bash
-cd ./cmd/temppc/
-```
-```bash
-go run main.go
-```
+### zipkin docker: http://localhost:9411/zipkin/
+

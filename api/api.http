@@ -1,25 +1,35 @@
 ### Service A - validator
 
 ###Get Temperatures By validator Ok
-GET http://localhost:8080/validator/temperature/59090050 HTTP/1.1
+POST http://localhost:8080/validator/temperature HTTP/1.1
 Host: localhost:8080
 Content-Type: application/json
+
+{
+    "cep": "59090050"
+}
 
 ####
 
 ###Get Temperatures 404 By validator [can not find zipcode]
-GET http://localhost:8080/validator/temperature/11111111 HTTP/1.1
+POST http://localhost:8080/validator/temperature HTTP/1.1
 Host: localhost:8080
 Content-Type: application/json
+
+{
+    "cep": "11111111"
+}
 
 ####
 
-###Get Temperatures 422 By validator [invalid zipcodecompose]
-GET http://localhost:8080/validator/temperature/124ABC HTTP/1.1
+###Get Temperatures 422 By validator [invalid zipcode]
+POST http://localhost:8080/validator/temperature HTTP/1.1
 Host: localhost:8080
 Content-Type: application/json
 
-
+{
+    "cep": "124ABC"
+}
 
 ### Service B - temppc
 
@@ -37,7 +47,7 @@ Content-Type: application/json
 
 ####
 
-###Get Temperatures 422 By temppc  [invalid zipcodecompose]
+###Get Temperatures 422 By temppc  [invalid zipcode]
 GET http://localhost:8090/temppc/temperature/124ABC HTTP/1.1
 Host: localhost:8090
 Content-Type: application/json

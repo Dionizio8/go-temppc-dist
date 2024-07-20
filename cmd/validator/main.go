@@ -12,6 +12,7 @@ import (
 	"github.com/Dionizio8/go-temppc-dist/internal/infra/web"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"go.opentelemetry.io/otel"
 )
 
@@ -42,8 +43,9 @@ func main() {
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 
+	r.Handle("/metrics", promhttp.Handler())
 	r.Route("/validator", func(r chi.Router) {
-		r.Get("/temperature/{zipCode}", temperatureByClientHandler.GetTemperature)
+		r.Post("/temperature", temperatureByClientHandler.GetTemperature)
 	})
 
 	serverErr := make(chan error, 1)
