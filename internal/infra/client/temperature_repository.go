@@ -11,6 +11,7 @@ import (
 	"github.com/Dionizio8/go-temppc-dist/internal/entity"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/propagation"
+	"go.opentelemetry.io/otel/trace"
 )
 
 type TemperatureWeatherDTO struct {
@@ -32,7 +33,10 @@ func NewTemperatureRepository(weatherAPIClientURL string, weatherAPIClientAPIKey
 	}
 }
 
-func (r *TemperatureRepository) GetTemperature(ctx context.Context, city string) (entity.Temperature, error) {
+func (r *TemperatureRepository) GetTemperature(ctx context.Context, city string, tracer trace.Tracer) (entity.Temperature, error) {
+	ctx, span := tracer.Start(ctx, "get-city-temp")
+	defer span.End()
+
 	urlW, err := url.Parse(fmt.Sprintf("%s/v1/current.json", r.WeatherAPIClientURL))
 	if err != nil {
 		return entity.Temperature{}, err

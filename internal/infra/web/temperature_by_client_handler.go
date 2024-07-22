@@ -28,9 +28,6 @@ func (t *WebTemperatureByClientHandler) GetTemperature(w http.ResponseWriter, r 
 	ctx := r.Context()
 	ctx = otel.GetTextMapPropagator().Extract(ctx, carrier)
 
-	ctx, span := t.OtelTracer.Start(ctx, "GetTemperatureClient")
-	defer span.End()
-
 	var dto usecase.TemperatureInputDTO
 	err := json.NewDecoder(r.Body).Decode(&dto)
 	if err != nil {
@@ -39,7 +36,7 @@ func (t *WebTemperatureByClientHandler) GetTemperature(w http.ResponseWriter, r 
 	}
 
 	getTemperatureByClientUserCase := usecase.NewGetTemperatureByClientUseCase(t.TemppcRepository)
-	temperature, err := getTemperatureByClientUserCase.Execute(ctx, dto)
+	temperature, err := getTemperatureByClientUserCase.Execute(ctx, dto, t.OtelTracer)
 	if err != nil {
 		msgErr := err.Error()
 		if msgErr == entity.ErrAddressNotFoundMsg {

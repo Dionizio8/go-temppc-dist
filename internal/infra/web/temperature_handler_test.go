@@ -20,7 +20,7 @@ func TestWebTemperatureHandler_GetTemperature_ErrorddressNotFound(t *testing.T) 
 	temperatureRepository := mocks.NewMockTemperatureRepository(t)
 	webTemperatureHandler := NewWebTemperatureHandler(addressRepository, temperatureRepository, tracer)
 
-	addressRepository.On("GetAddress", mock.Anything, "11111111").Return(entity.Address{}, errors.New(entity.ErrAddressNotFoundMsg))
+	addressRepository.On("GetAddress", mock.Anything, "11111111", tracer).Return(entity.Address{}, errors.New(entity.ErrAddressNotFoundMsg))
 
 	r := chi.NewRouter()
 	r.Get("/temperature/{zipCode}", webTemperatureHandler.GetTemperature)
@@ -58,8 +58,8 @@ func TestWebTemperatureHandler_GetTemperature_ErrorInternalServer(t *testing.T) 
 	temperatureRepository := mocks.NewMockTemperatureRepository(t)
 	webTemperatureHandler := NewWebTemperatureHandler(addressRepository, temperatureRepository, tracer)
 
-	addressRepository.On("GetAddress", mock.Anything, "11111111").Return(entity.Address{City: "Limeira", State: "SP"}, nil).Once()
-	temperatureRepository.On("GetTemperature", mock.Anything, "Limeira").Return(entity.Temperature{}, errors.New("Internal Server Error")).Once()
+	addressRepository.On("GetAddress", mock.Anything, "11111111", tracer).Return(entity.Address{City: "Limeira", State: "SP"}, nil).Once()
+	temperatureRepository.On("GetTemperature", mock.Anything, "Limeira", tracer).Return(entity.Temperature{}, errors.New("Internal Server Error")).Once()
 
 	r := chi.NewRouter()
 	r.Get("/temperature/{zipCode}", webTemperatureHandler.GetTemperature)

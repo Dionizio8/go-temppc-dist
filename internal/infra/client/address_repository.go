@@ -10,6 +10,7 @@ import (
 	"github.com/Dionizio8/go-temppc-dist/internal/entity"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/propagation"
+	"go.opentelemetry.io/otel/trace"
 )
 
 type AddressViaCepDTO struct {
@@ -27,7 +28,10 @@ func NewAddressRepository(viaCEPClientURL string) *AddressRepository {
 	}
 }
 
-func (r *AddressRepository) GetAddress(ctx context.Context, zipCode string) (entity.Address, error) {
+func (r *AddressRepository) GetAddress(ctx context.Context, zipCode string, tracer trace.Tracer) (entity.Address, error) {
+	ctx, span := tracer.Start(ctx, "get-city-name")
+	defer span.End()
+
 	url := fmt.Sprintf("%s/ws/%s/json", r.ViaCEPClientURL, zipCode)
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {

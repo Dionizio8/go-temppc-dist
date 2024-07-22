@@ -44,7 +44,7 @@ func TestWebTemperatureByClientHandler_GetTemperature_ErrorInternalServer(t *tes
 	temppcRepository := mocks.NewMockTemppcRepository(t)
 	webTemperatureByClientHandler := NewWebTemperatureByClientHandler(temppcRepository, tracer)
 
-	temppcRepository.On("GetTemperature", mock.Anything, "11111111").Return(entity.Temperature{}, errors.New("Internal Server Error")).Once()
+	temppcRepository.On("GetTemperature", mock.Anything, "11111111", tracer).Return(entity.Temperature{}, errors.New("Internal Server Error")).Once()
 
 	r := chi.NewRouter()
 	r.Post("/temperature", webTemperatureByClientHandler.GetTemperature)
@@ -75,7 +75,7 @@ func TestWebTemperatureByClientHandler_GetTemperature_Success(t *testing.T) {
 		Kelvin:     100.00,
 	}
 
-	temppcRepository.On("GetTemperature", mock.Anything, "11111111").Return(temperature, nil).Once()
+	temppcRepository.On("GetTemperature", mock.Anything, "11111111", tracer).Return(temperature, nil).Once()
 
 	r := chi.NewRouter()
 	r.Post("/temperature", webTemperatureByClientHandler.GetTemperature)
@@ -99,7 +99,7 @@ func TestWebTemperatureByClientHandler_GetTemperature_ErrorAddressNotFound(t *te
 	temppcRepository := mocks.NewMockTemppcRepository(t)
 	webTemperatureByClientHandler := NewWebTemperatureByClientHandler(temppcRepository, tracer)
 
-	temppcRepository.On("GetTemperature", mock.Anything, "11111111").Return(entity.Temperature{}, errors.New(entity.ErrAddressNotFoundMsg)).Once()
+	temppcRepository.On("GetTemperature", mock.Anything, "11111111", tracer).Return(entity.Temperature{}, errors.New(entity.ErrAddressNotFoundMsg)).Once()
 
 	r := chi.NewRouter()
 	r.Post("/temperature", webTemperatureByClientHandler.GetTemperature)

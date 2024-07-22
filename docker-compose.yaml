@@ -26,7 +26,7 @@ services:
         APP_NAME: validator
     environment:
       - WEB_SERVER_PORT=:8080
-      - OTEL_SERVICE_NAME=app-a-validator
+      - OTEL_SERVICE_NAME=service_a
       - OTEL_COLLECTOR_URL=otel-collector:4317
     ports:
       - 8080:8080
@@ -42,7 +42,7 @@ services:
         APP_NAME: temppc
     environment:
       - WEB_SERVER_PORT=:8090
-      - OTEL_SERVICE_NAME=app-b-temppc
+      - OTEL_SERVICE_NAME=service_b
       - OTEL_COLLECTOR_URL=otel-collector:4317
     ports:
       - 8090:8090

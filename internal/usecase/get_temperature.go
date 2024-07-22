@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	"github.com/Dionizio8/go-temppc-dist/internal/entity"
+	"go.opentelemetry.io/otel/trace"
 )
 
 type TemperatureOutputDTO struct {
@@ -26,11 +27,11 @@ func NewGetTemperatureUseCase(addressRepository entity.AddressRepositoryInterfac
 	}
 }
 
-func (uc *GetTemperatureUseCase) Execute(ctx context.Context, zipCode string) (TemperatureOutputDTO, error) {
+func (uc *GetTemperatureUseCase) Execute(ctx context.Context, zipCode string, tracer trace.Tracer) (TemperatureOutputDTO, error) {
 	if !entity.ValidateZipCode(zipCode) {
 		return TemperatureOutputDTO{}, errors.New(entity.ErrInvalidZipCodeMsg)
 	}
-	address, err := uc.AddressRepository.GetAddress(ctx, zipCode)
+	address, err := uc.AddressRepository.GetAddress(ctx, zipCode, tracer)
 	if err != nil {
 		return TemperatureOutputDTO{}, err
 	}
@@ -39,7 +40,7 @@ func (uc *GetTemperatureUseCase) Execute(ctx context.Context, zipCode string) (T
 		return TemperatureOutputDTO{}, errors.New(entity.ErrAddressNotFoundMsg)
 	}
 
-	temperature, err := uc.TemperatureRepository.GetTemperature(ctx, address.City)
+	temperature, err := uc.TemperatureRepository.GetTemperature(ctx, address.City, tracer)
 	if err != nil {
 		return TemperatureOutputDTO{}, err
 	}
